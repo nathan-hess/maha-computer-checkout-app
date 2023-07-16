@@ -1,0 +1,54 @@
+.form-page {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+}
+
+.form {
+    background-color: rgb(159, 216, 148);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    text-align: center;
+    width: 300px;
+}
+
+.form-header-text {
+    margin-top: 0;
+    padding-top: 0;
+}
+
+.form-text-box {
+    font-size: large;
+    margin-bottom: 10px;
+    padding: 10px;
+}
+
+.form-submit-button {
+    background-color: rgb(194, 194, 194);
+    border: 2px solid rgb(82, 82, 82);
+    font-size: large;
+    height: 30px;
+    margin-top: 15px;
+}
+
+.form-submit-button:hover {
+    background-color: rgb(143, 143, 143);
+}
+
+.form-error-message {
+    color: red;
+    font-size: large;
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+    width: 300px;
+}
+
+.select-dropdown {
+    font-size: large;
+    padding: 10px;
+}

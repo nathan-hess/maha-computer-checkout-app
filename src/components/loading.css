@@ -1,0 +1,16 @@
+.loading-screen {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.spinner {
+    position: relative;
+    margin-top: 30px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, 0%);
+}

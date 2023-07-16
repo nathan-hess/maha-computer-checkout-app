@@ -1,0 +1,47 @@
+.round-button {
+    border-radius: 18px;
+    font-size: medium;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 30px;
+    padding-right: 30px;
+    text-align: center;
+}
+
+.red-button {
+    background-color: rgb(255, 220, 220);
+    border: 2px solid rgb(182, 0, 0);
+    color: rgb(182, 0, 0);
+}
+
+.red-button:hover {
+    background-color: rgb(255, 182, 182);
+}
+
+.gray-button {
+    background-color: rgb(235, 235, 235);
+    border: 2px solid rgb(31, 31, 31);
+    color: rgb(31, 31, 31);
+}
+
+.gray-button:hover {
+    background-color: rgb(185, 185, 185);
+}
+
+.link-button {
+    background-color: rgb(235, 235, 235);
+    border: 1px solid black;
+    border-radius: 5px;
+    color: black;
+    display: inline-flex;
+    font-size: medium;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    text-decoration: none;
+}
+
+.link-button:hover {
+    background-color: rgb(185, 185, 185);
+}

@@ -1,0 +1,19 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "reservation_history",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "asset_tag",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reservation_end",
+          "order": "ASCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

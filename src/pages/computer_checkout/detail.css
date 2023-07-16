@@ -1,0 +1,9 @@
+@import '../../styles/buttons.css';
+@import '../../styles/tables.css';
+
+
+.page-content {
+    text-align: left;
+    margin-left: 12.5%;
+    margin-right: 12.5%;
+}

@@ -1,0 +1,36 @@
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "hosting": {
+    "public": "build",
+    "ignore": [
+      "**/.firebase/**",
+      "**/.github/**",
+      "**/.vscode/**",
+      "**/docs/**",
+      "media/**",
+      "**/node_modules/**",
+      "**/public/**",
+      "**/scratch/**",
+      "**/src/**",
+      ".env.production",
+      ".firebaserc",
+      ".gitignore",
+      "firebase.json",
+      "firestores.indexes.json",
+      "firestore.rules",
+      "package-lock.json",
+      "package.json",
+      "README.md",
+      "**.py"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

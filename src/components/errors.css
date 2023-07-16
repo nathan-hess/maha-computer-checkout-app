@@ -1,0 +1,9 @@
+.error-screen-header {
+    color: red;
+    font-size: xx-large;
+    margin-top: 10%;
+}
+
+.error-screen-message {
+    color: red;
+}

@@ -1,0 +1,16 @@
+@import '../../styles/buttons.css';
+
+
+.page-content {
+    text-align: left;
+    margin-left: 17.5%;
+    margin-right: 17.5%;
+}
+
+.error-message {
+    color: red;
+}
+
+.success-message {
+    color: green;
+}

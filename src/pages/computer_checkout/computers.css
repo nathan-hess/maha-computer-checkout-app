@@ -1,0 +1,15 @@
+@import '../../styles/buttons.css';
+@import '../../styles/tables.css';
+
+
+.page-content {
+    margin-left: 5%;
+    margin-right: 5%;
+    text-align: left;
+}
+
+.admin-new-button {
+    float: right;
+    margin-left: 5%;
+    margin-right: 5%;
+}

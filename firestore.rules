@@ -1,0 +1,107 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // User authentication and roles
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+    }
+
+    function isFaculty() {
+      return isSignedIn() && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'faculty');
+    }
+
+    function isStudent() {
+      return isSignedIn() && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'student');
+    }
+
+    function isMember() {
+      return isAdmin() || isFaculty() || isStudent();
+    }
+
+    function userCheckedOutDevice(assetTag) {
+      return request.auth.uid == get(/databases/$(database)/documents/computers/$(assetTag)).data.reservation_user;
+    }
+
+    // Input data validation
+    function timeMatchesServer(timeValue) {
+        let tolerance = duration.value(30, 's');
+        return (timeValue > (request.time - tolerance)) && (timeValue < (request.time + tolerance));
+    }
+
+    function checkFieldsCreate(required, optional) {
+        let allowedFields = required.concat(optional);
+        return request.resource.data.keys().hasAll(required)
+               && request.resource.data.keys().hasOnly(allowedFields);
+    }
+
+    function checkFieldsUpdate(required, optional) {
+        let allowedFields = required.concat(optional);
+        return request.resource.data.diff(resource.data).affectedKeys().hasAll(required)
+               && request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowedFields);
+    }
+
+    function validateCheckout() {
+        return request.resource.data.reservation_user == request.auth.uid
+               && request.resource.data.reservation_name == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.name
+               && timeMatchesServer(request.resource.data.reservation_begin)
+               && request.resource.data.reservation_end > request.resource.data.reservation_begin
+               && request.resource.data.reservation_end <= (request.time + duration.value(16, 'd'))
+               && request.resource.data.reservation_status == 'in_use';
+    }
+
+    function validateExtend() {
+      return (request.resource.data.reservation_end >= (request.time - duration.value(30, 's')))
+             && (resource.data.reservation_status == 'in_use')
+             && (resource.data.reservation_end > request.time);
+    }
+
+    // Computer properties
+    function isDeviceCurrent() {
+      return resource.data.reservation_status in ['available', 'in_use'];
+    }
+
+    // Access rules
+    match /computers/{assetTag} {
+      allow read: if isAdmin() || isFaculty();
+      allow read: if isStudent() && isDeviceCurrent();
+      allow create, update: if isAdmin();
+
+      // Allow members to check out devices
+      allow update: if isMember() && checkFieldsUpdate(['reservation_begin', 'reservation_end', 'reservation_name', 'reservation_status', 'reservation_user'], []) && validateCheckout();
+
+      // Allow members to check in their own devices
+      allow update: if isMember() && userCheckedOutDevice(assetTag) && checkFieldsUpdate(['reservation_end'], []) && timeMatchesServer(request.resource.data.reservation_end);
+
+      // Allow faculty to adjust reservation end dates
+      allow update: if isFaculty() && checkFieldsUpdate(['reservation_end'], []) && validateExtend();
+    }
+
+    match /config/google_remote_desktop {
+      allow read: if isMember();
+    }
+
+    match /config/help {
+      allow read: if isMember();
+    }
+
+    match /logins/{assetTag} {
+      allow read, create, update: if isAdmin();
+      allow get: if isMember() && userCheckedOutDevice(assetTag);
+    }
+
+    match /reservation_history/{itemID} {
+      allow read: if isAdmin() || isFaculty();
+      allow create: if isAdmin();
+    }
+
+    match /users/{userID} {
+      allow read: if (request.auth.uid == userID) || isAdmin() || isFaculty();
+      allow create: if isSignedIn() && (request.auth.uid == userID) && checkFieldsCreate(['name', 'email', 'role'], []) && (request.resource.data.role == 'external') && (request.resource.data.email == request.auth.token.email);
+      allow update: if isAdmin() && checkFieldsUpdate([], ['name', 'role']);
+    }
+  }
+}

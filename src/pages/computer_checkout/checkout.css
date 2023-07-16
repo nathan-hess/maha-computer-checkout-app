@@ -1,0 +1,16 @@
+@import '../../styles/buttons.css';
+
+
+.checkout-form-error-message {
+    color: red;
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+}
+
+.checkout-submit-error-message {
+    color: red;
+    font-size: large;
+    font-weight: bold;
+    margin-top: 15px;
+}

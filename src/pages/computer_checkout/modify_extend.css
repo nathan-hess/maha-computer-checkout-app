@@ -1,0 +1,33 @@
+@import '../../styles/buttons.css';
+@import '../../styles/forms.css';
+
+
+.page-header {
+    font-size: 22pt;
+}
+
+.page-content {
+    text-align: left;
+}
+
+.field-name {
+    margin-bottom: 5px;
+    padding-bottom: 5px;
+}
+
+.multiline-text-box {
+    width: 500px;
+    height: 100px;
+}
+
+.error-message {
+    color: red;
+}
+
+.success-message {
+    color: green;
+}
+
+.submit-button {
+    margin-top: 20px;
+}

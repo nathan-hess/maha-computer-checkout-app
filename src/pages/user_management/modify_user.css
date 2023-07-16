@@ -1,0 +1,15 @@
+@import '../../styles/buttons.css';
+@import '../../styles/forms.css';
+
+
+.error-message {
+    color: red;
+}
+
+.success-message {
+    color: green;
+}
+
+.submit-button {
+    margin-top: 40px;
+}
