@@ -411,8 +411,15 @@ export default function ModifyDevicePage() {
                                         loginData
                                     );
                                 }
+
                                 setSuccessVisibility(true);
-                                returnToPreviousPage();
+
+                                if (id === NEW_COMPUTER_KEYWORD) {
+                                    navigate(`${PAGES.details}/${newDeviceID}`);
+                                }
+                                else {
+                                    returnToPreviousPage();
+                                }
                             }
                             catch (exception) {
                                 setErrorMessage(
