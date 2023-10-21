@@ -127,7 +127,7 @@ export default function ComputerCheckout() {
                                     }
                                 );
                                 logEvent(analytics, 'purchase');
-                                navigate(PAGES.computer_list);
+                                navigate(`${PAGES.details}/${id}`);
                             }
                             catch (exception) {
                                 console.error(exception);
