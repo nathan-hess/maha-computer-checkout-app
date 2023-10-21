@@ -99,6 +99,16 @@ async function generatePage(id, location, navigate) {
     const canViewLogin = ((role === ROLES.admin) || userCheckedOutDevice);
     const login = canViewLogin ? await getDoc(doc(db, `logins/${id}`)) : null;
 
+    // Determine whether to display current/most recent user section
+    const showCurrentUser = (
+        (getStatus(data) === STATUSES.in_use)
+        || (getStatus(data) === STATUSES.pending
+            && role === ROLES.admin)
+    );
+
+    const beginDate = showCurrentUser ? new Date(data.get('reservation_begin')['seconds'] * 1000) : null;
+    const endDate = showCurrentUser ? new Date(data.get('reservation_end')['seconds'] * 1000) : null;
+
     // Render details page
     function generateBulletedList(array) {
         if (array.length > 0) {
@@ -125,6 +135,29 @@ async function generatePage(id, location, navigate) {
             : <></>
         }
         <div className='page-content'>
+            {
+                canViewLogin
+                ? <>
+                    <br></br>
+                    <hr></hr>
+                    <h2>Login</h2>
+                    {
+                        userCheckedOutDevice
+                        ? usageInstructions(id, sharedAccountInfo)
+                        : <></>
+                    }
+                    {
+                        login.exists()
+                        ? <ul>
+                            <li><b>Password: </b>{login.get('password')}</li>
+                            <li><b>PIN: </b>{login.get('pin')}</li>
+                          </ul>
+                        : <p><i>No login details found</i></p>
+                    }
+                    <hr></hr>
+                  </>
+                : <></>
+            }
             <br></br>
             <h2>General Properties</h2>
             <ul>
@@ -154,24 +187,22 @@ async function generatePage(id, location, navigate) {
                 : data.get('notes')
             }</p>
             {
-                canViewLogin
+                showCurrentUser
                 ? <>
                     <br></br>
-                    <h2>Login</h2>
-                    {
-                        userCheckedOutDevice
-                        ? usageInstructions(id, sharedAccountInfo)
-                        : <></>
-                    }
-                    {
-                        login.exists()
-                        ? <ul>
-                            <li><b>Password: </b>{login.get('password')}</li>
-                            <li><b>PIN: </b>{login.get('pin')}</li>
-                          </ul>
-                        : <p><i>No login details found</i></p>
-                    }
-                  </>
+                    <h2>{getStatus(data) === STATUSES.in_use ? "Current" : "Last"} User</h2>
+                    <ul>
+                        <li key='reservation_user'><b>User: </b>{data.get('reservation_name')}</li>
+                        <li key='reservation_begin'>
+                            <b>Reservation Begin Date: </b>
+                            {beginDate.toLocaleDateString()} {beginDate.toLocaleTimeString()}
+                        </li>
+                        <li key='reservation_end'>
+                            <b>Reservation End Date: </b>
+                            {endDate.toLocaleDateString()} {endDate.toLocaleTimeString()}
+                        </li>
+                    </ul>
+                </>
                 : <></>
             }
             {

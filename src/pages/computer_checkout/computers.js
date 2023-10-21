@@ -107,7 +107,7 @@ async function generatePage(location, navigate) {
                 filterComputers(computers, now,
                                 [STATUSES.available],  // status
                                 null, null),           // users
-                true, canEditDevices, false)}
+                true, canEditDevices, false, true, false)}
             <br></br>
             <h2>Computers In Use</h2>
             <h3>Your Computers</h3>
@@ -115,22 +115,26 @@ async function generatePage(location, navigate) {
                 filterComputers(computers, now,
                                 [STATUSES.in_use],  // status
                                 [user.uid], null),  // users
-                true, canEditDevices, canAdjustEndDate, navigate)}
+                true, canEditDevices, canAdjustEndDate, true, navigate)}
             <br></br>
             <h3>Other In-Use Computers</h3>
             {reservedComputerTable(
                 filterComputers(computers, now,
                                 [STATUSES.in_use],  // status
                                 null, [user.uid]),  // users
-                canAdjustEndDate, canEditDevices, canAdjustEndDate,
+                canAdjustEndDate, canEditDevices, canAdjustEndDate, false,
                 navigate)}
             <br></br>
             <h2>Computers Under Maintenance</h2>
-            {detailedComputerTable(
-                filterComputers(computers, now,
-                                [STATUSES.pending],  // status
-                                null, null),         // users
-                false, canEditDevices, canEditDevices)}
+            {
+                detailedComputerTable(
+                    filterComputers(computers, now,
+                                    [STATUSES.pending],  // status
+                                    null, null),         // users
+                    false, canEditDevices, canEditDevices, true,
+                    canEditDevices  // let users with edit privileges (i.e.,
+                )                   // administrators) view last user
+            }
             <br></br>
             {
                 canViewOfflineArchived
@@ -140,14 +144,14 @@ async function generatePage(location, navigate) {
                         filterComputers(computers, now,
                                         [STATUSES.offline],  // status
                                         null, null),         // users
-                        false, canEditDevices, false)}
+                        false, canEditDevices, false, true, false)}
                     <br></br>
                     <h2>Retired Computers</h2>
                     {detailedComputerTable(
                         filterComputers(computers, now,
                                         [STATUSES.archived],  // status
                                         null, null),          // users
-                        false, canEditDevices, false)}
+                        false, canEditDevices, false, true, false)}
                     <br></br>
                 </>
                 : <></>
@@ -214,9 +218,13 @@ function filterComputers(collection, now, statuses, includeUsers, excludeUsers) 
  * about a computer
  * @param showMakeAvailableButton Whether to show a button in the table to
  * make the computer available
+ * @param showNotes Whether to show a column with a snippet of the notes for
+ * the device
+ * @param showUser Whether to show a column with the current user
  */
 function detailedComputerTable(devices, showCheckoutButton, showEditButton,
-                               showMakeAvailableButton) {
+                               showMakeAvailableButton, showNotes = true,
+                               showUser = false) {
     const rows = [];
     devices.forEach((document) => {
         rows.push(
@@ -225,7 +233,16 @@ function detailedComputerTable(devices, showCheckoutButton, showEditButton,
                 <td>{`${document.get('manufacturer')} ${document.get('model')}`}</td>
                 <td>{document.get('cpu')}</td>
                 <td>{document.get('memory')}</td>
-                <td>{truncateString(document.get('notes'), MAX_NOTES_LENGTH)}</td>
+                {
+                    showNotes
+                    ? <td>{truncateString(document.get('notes'), MAX_NOTES_LENGTH)}</td>
+                    : <></>
+                }
+                {
+                    showUser
+                    ? <td>{document.get('reservation_name')}</td>
+                    : <></>
+                }
                 <td><Link to={`${PAGES.details}/${document.id}`}>Details</Link></td>
                 {showCheckoutButton || showEditButton || showMakeAvailableButton
                  ? <td>
@@ -268,7 +285,8 @@ function detailedComputerTable(devices, showCheckoutButton, showEditButton,
                     <th>Model</th>
                     <th>CPU</th>
                     <th>Memory</th>
-                    <th>Notes</th>
+                    {showNotes ? <th>Notes</th> : <></>}
+                    {showUser ? <th>User</th> : <></>}
                     <th>Device Details</th>
                     {showCheckoutButton || showEditButton || showMakeAvailableButton
                      ? <th>Actions</th>
@@ -295,10 +313,12 @@ function detailedComputerTable(devices, showCheckoutButton, showEditButton,
  * about a computer
  * @param showExtendButton Whether to show a button in the table to extend the
  * device reservation
+ * @param showDetailsButton Whether to show a button in the table to navigate
+ * to the device details page
  * @param navigate React Router function for navigating to a specified page
  */
 function reservedComputerTable(devices, showCheckinButton, showEditButton,
-                               showExtendButton, navigate) {
+                               showExtendButton, showDetailsButton, navigate) {
     const rows = [];
     devices.forEach((document) => {
         const beginDate = new Date(document.get('reservation_begin')['seconds'] * 1000);
@@ -315,7 +335,7 @@ function reservedComputerTable(devices, showCheckinButton, showEditButton,
                     <br></br>
                     {`${endDate.toLocaleDateString()} ${endDate.toLocaleTimeString()}`}
                 </td>
-                {showCheckinButton || showEditButton || showExtendButton
+                {showCheckinButton || showEditButton || showExtendButton || showDetailsButton
                  ? <td>
                     {showEditButton
                      ? <Link
@@ -325,17 +345,37 @@ function reservedComputerTable(devices, showCheckinButton, showEditButton,
                        >Edit</Link>
                      : <></>}
                     &nbsp;&nbsp;
+                    {showDetailsButton
+                     ? <Link
+                            className='link-button'
+                            to={`${PAGES.details}/${document.id}`}
+                       >View Login</Link>
+                     : <></>}
+                    &nbsp;&nbsp;
                     {showCheckinButton
                      ? <button
                             className='link-button'
                             onClick={async () => {
                                     try {
-                                        await updateDoc(
-                                            doc(db, 'computers', document.id),
-                                            {reservation_end: Timestamp.fromDate(new Date())}
-                                        );
-                                        logEvent(analytics, 'refund');
-                                        navigate(0);
+                                        console.log('Requesting user confirmation to check in computer...');
+                                        if (window.confirm(
+                                                `Once you check in "${document.id}," you will no longer have `
+                                                + "access to the device login information and your files may "
+                                                + "be wiped from the device.  Prior to checking the computer "
+                                                + "in, please make sure you are finished with your work on "
+                                                + "it and you have saved any necessary files.\n\n"
+                                                + `Are you sure you would like to check in "${document.id}"?`))
+                                        {
+                                            await updateDoc(
+                                                doc(db, 'computers', document.id),
+                                                {reservation_end: Timestamp.fromDate(new Date())}
+                                            );
+                                            logEvent(analytics, 'refund');
+                                            navigate(0);
+                                        }
+                                        else {
+                                            console.log('Device check-in canceled');
+                                        }
                                     }
                                     catch (exception) {
                                         console.error(exception);
