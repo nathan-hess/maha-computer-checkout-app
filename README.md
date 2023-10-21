@@ -144,7 +144,19 @@ Want to give the app a try?  Just follow these steps to set up your own app inst
     - Download your app's Firebase configuration through the [Firebase console general project settings](https://console.firebase.google.com/project/_/settings/general).  Save the value of ``firebaseConfig`` in ``src/firebase.js``
     - Edit ``.firebaserc`` and add your project's name
 
-8. **Deployment on Firebase Hosting**: Deploy the app (Firestore rules, Firestore indexes, and hosting) by running:
+8. **Local Testing**: Want to add a new feature or customize the app for your organization?  To test and debug locally, run:
+
+    ```shell
+    npm start
+    ```
+
+9. **Build App for Production**: Run the following command to create an optimized production build with webpack:
+
+    ```shell
+    npm run build
+    ```
+
+10. **Deployment on Firebase Hosting**: Deploy the app (Firestore rules, Firestore indexes, and hosting) by running:
 
     ```shell
     firebase deploy
@@ -152,9 +164,3 @@ Want to give the app a try?  Just follow these steps to set up your own app inst
 
     - Once the app has deployed to Firebase hosting, you should be able to create accounts, add devices, and check out/check in computers
     - Note that in order to set up the first `admin` account, you will need to directly edit the Firestore database through the [Firebase console](https://console.firebase.google.com/).  After you've done this once, this `admin` user can edit permissions for future users.
-
-9. **Local Testing**: Want to add a new feature or customize the app for your organization?  To test and debug locally, run:
-
-    ```shell
-    npm start
-    ```
